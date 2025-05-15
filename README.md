@@ -1,0 +1,1 @@
+# bash-wcpcli9-multi-az
