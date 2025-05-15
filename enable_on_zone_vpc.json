@@ -1,0 +1,83 @@
+{
+    "control_plane": {
+        "count":  ${SUPERVISOR_VM_COUNT},
+        "login_banner": "Your login banner message",
+        "network": {
+            "backing": {
+                "backing": "NETWORK_SEGMENT",
+                "network_segment": {
+                    "networks": [ "${VKS_MGMT_NETWORK1}", "${VKS_MGMT_NETWORK2}", "${VKS_MGMT_NETWORK3}" ]
+                }
+            },
+            "ip_management": {
+                "dhcp_enabled": false,
+                "gateway_address": "${MGMT_GATEWAY_CIDR}",
+                "ip_assignments": [ {
+                    "assignee": "NODE",
+                    "ranges": [ {
+                        "address": "${MGMT_STARTING_IP}",
+                        "count": 5
+                    } ]
+                } ]
+            },
+            "network": "managementnetwork0",
+            "proxy": {
+                "proxy_settings_source": "VC_INHERITED"
+            },
+            "services": {
+                "dns": {
+                    "search_domains": [ "${DNS_SEARCHDOMAIN}" ],
+                    "servers": [ "${DNS_SERVER}" ]
+                },
+                "ntp": {
+                    "servers": [ "${NTP_SERVER}" ]
+                }
+            }
+        },
+        "size": "${SUPERVISOR_SIZE}",
+        "storage_policy": "${VKS_STORAGE_POLICY}"
+    },
+    "name": "${SUPERVISOR_NAME}",
+    "workloads": {
+        "edge": {
+            "provider": "NSX_VPC"
+        },
+        "network": {
+            "ip_management": {
+                "dhcp_enabled": false,
+                "gateway_address": "",
+                "ip_assignments": [ {
+                    "assignee": "SERVICE",
+                    "ranges": [ {
+                        "address": "${K8S_SERVICE_SUBNET}",
+                        "count": ${K8S_SERVICE_SUBNET_COUNT}
+                    } ]
+                } ]
+            },
+            "network": "workloadnetwork0",
+            "network_type": "NSX_VPC",
+            "nsx_vpc": {
+                "default_private_cidrs": [ {
+                    "address": "${VPC_DEFAULT_PRIVATE_CIDRS_ADDRESS}",
+                    "prefix": ${VPC_DEFAULT_PRIVATE_CIDRS_PREFIX}
+                } ],
+                "nsx_project": "/orgs/${VPC_ORG}/projects/${VPC_PROJECT}",
+                "vpc_connectivity_profile": "/orgs/${VPC_ORG}/projects/${VPC_PROJECT}/vpc-connectivity-profiles/${VPC_CONNECTIVITY_PROFILE"
+            },
+            "services": {
+                "dns": {
+                    "search_domains": [ "${DNS_SEARCHDOMAIN}" ],
+                    "servers": [ "${DNS_SERVER}" ]
+                },
+                "ntp": {
+                    "servers": [ "${NTP_SERVER}" ]
+                }
+            },
+        },
+        "storage": {
+            "ephemeral_storage_policy": "${VKS_STORAGE_POLICY}",
+            "image_storage_policy": "${VKS_STORAGE_POLICY}"
+        }
+    },
+    "zones": [ "${VKSZone1}","${VKSZone2}","${VKSZone3}" ]
+}

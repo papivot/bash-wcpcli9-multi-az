@@ -1,0 +1,95 @@
+{
+    "control_plane": {
+        "count":  ${SUPERVISOR_VM_COUNT},
+        "login_banner": "Your login banner message",
+        "network": {
+            "backing": {
+                "backing": "NETWORK_SEGMENT",
+                "network_segment": {
+                    "networks": [ "${VKS_MGMT_NETWORK1}", "${VKS_MGMT_NETWORK2}", "${VKS_MGMT_NETWORK3}" ]
+                }
+            },
+           "ip_management": {
+                "dhcp_enabled": false,
+                "gateway_address": "${MGMT_GATEWAY_CIDR}",
+                "ip_assignments": [ {
+                    "assignee": "NODE",
+                    "ranges": [ {
+                        "address": "${MGMT_STARTING_IP}",
+                        "count": 5
+                    } ]
+                } ]
+            },
+            "network": "managementnetwork0",
+            "proxy": {
+                "proxy_settings_source": "VC_INHERITED"
+            },
+            "services": {
+                "dns": {
+                    "search_domains": [ "${DNS_SEARCHDOMAIN}" ],
+                    "servers": [ "${DNS_SERVER}" ]
+                },
+                "ntp": {
+                    "servers": [ "${NTP_SERVER}" ]
+                }
+            }
+        },
+        "size": "${SUPERVISOR_SIZE}",
+        "storage_policy": "${VKS_STORAGE_POLICY}"
+    },
+    "name": "${SUPERVISOR_NAME}",
+    "workloads": {
+        "edge": {
+            "nsx_advanced": {
+                "certificate_authority_chain": "",
+                "cloud_name": "",
+                "password": "",
+                "server": {
+                    "host": "",
+                    "port": 0
+                },
+                "username": ""
+            },
+            "provider": "NSX_ADVANCED"
+        },
+        "network": {
+            "ip_management": {
+                "dhcp_enabled": false,
+                "gateway_address": "",
+                "ip_assignments": [ {
+                    "assignee": "NODE",
+                    "ranges": [ {
+                        "address": "${AVI_WORKLOAD_STARTING_IP}",
+                        "count": ${AVI_WORKLOAD_IP_COUNT}
+                    } ]
+                },
+                {
+                    "assignee": "SERVICE",
+                    "ranges": [ {
+                        "address": "${K8S_SERVICE_SUBNET}",
+                        "count": ${K8S_SERVICE_SUBNET_COUNT}
+                    } ]
+                } ]
+            },
+            "network": "workloadnetwork0",
+            "network_type": "VSPHERE",
+            "services": {
+                "dns": {
+                    "search_domains": [ "${DNS_SEARCHDOMAIN}" ],
+                    "servers": [ "${DNS_SERVER}" ]
+                },
+                "ntp": {
+                    "servers": [ "${NTP_SERVER}" ]
+                }
+            },
+            "vsphere": {
+                "dvpg": "${VKS_WKLD_NETWORK}"
+            }
+        },
+        "storage": {
+            "ephemeral_storage_policy": "${VKS_STORAGE_POLICY}",
+            "image_storage_policy": "${VKS_STORAGE_POLICY}"
+        }
+    },
+    "zones": [ "${VKSZone1}","${VKSZone2}","${VKSZone3}" ]
+}

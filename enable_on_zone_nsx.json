@@ -1,0 +1,102 @@
+{
+    "control_plane": {
+        "count":  ${SUPERVISOR_VM_COUNT},
+        "login_banner": "Your login banner message",
+        "network": {
+            "backing": {
+                "backing": "NETWORK_SEGMENT",
+                "network_segment": {
+                    "networks": [ "${VKS_MGMT_NETWORK1}", "${VKS_MGMT_NETWORK2}", "${VKS_MGMT_NETWORK3}" ]
+                }
+            },
+            "floating_IP_address": "",
+            "ip_management": {
+                "dhcp_enabled": false,
+                "gateway_address": "${MGMT_GATEWAY_CIDR}",
+                "ip_assignments": [ {
+                    "assignee": "NODE",
+                    "ranges": [ {
+                        "address": "${MGMT_STARTING_IP}",
+                        "count": 5
+                    } ]
+                } ]
+            },
+            "network": "managementnetwork0",
+            "proxy": {
+                "proxy_settings_source": "VC_INHERITED"
+            },
+            "services": {
+                "dns": {
+                    "search_domains": [ "${DNS_SEARCHDOMAIN}" ],
+                    "servers": [ "${DNS_SERVER}" ]
+                },
+                "ntp": {
+                    "servers": [ "${NTP_SERVER}" ]
+                }
+            }
+        },
+        "size": "${SUPERVISOR_SIZE}",
+        "storage_policy": "${VKS_STORAGE_POLICY}"
+    },
+    "name": "${SUPERVISOR_NAME}",
+    "workloads": {
+        "edge": {
+            "load_balancer_address_ranges": [ {
+                "address": "${NSX_INGRESS_NW}",
+                "count": ${NSX_INGRESS_COUNT}
+            } ],
+            "nsx": {
+                "default_ingress_TLS_certificate": "",
+                "edge_cluster_ID": "${NSX_EDGE_CLUSTER_ID}",
+                "egress_IP_ranges": [ {
+                    "address": "${NSX_EGRESS_NW}",
+                    "count": ${NSX_EGRESS_COUNT}
+                } ],
+                "load_balancer_size": "SMALL",
+                "routing_mode": "NAT",
+                "t0_gateway": "${NSX_T0_GATEWAY_ID}"
+            },
+            "provider": "NSX"
+        },
+        "network": {
+            "ip_management": {
+                "dhcp_enabled": false,
+                "gateway_address": "",
+                "ip_assignments": [ {
+                    "assignee": "POD",
+                    "ranges": [ {
+                        "address": "${NSX_NAMESPACE_NW}",
+                        "count": ${NSX_NAMESPACE_COUNT}
+                    } ]
+                },
+                {
+                    "assignee": "SERVICE",
+                    "ranges": [ {
+                        "address": "${K8S_SERVICE_SUBNET}",
+                        "count": ${K8S_SERVICE_SUBNET_COUNT}
+                    } ]
+                } ]
+            },
+            "network": "workloadnetwork0",
+            "network_type": "NSXT",
+            "nsx": {
+                "dvs": "${NSX_DVS}",
+                "namespace_subnet_prefix": 28
+            },
+            "services": {
+                "dns": {
+                    "search_domains": [ "${DNS_SEARCHDOMAIN}" ],
+                    "servers": [ "${DNS_SERVER}" ]
+                },
+                "ntp": {
+                    "servers": [ "${NTP_SERVER}" ]
+                }
+            },
+        },
+        "storage": {
+            "ephemeral_storage_policy": "${VKS_STORAGE_POLICY}",
+            "image_storage_policy": "${VKS_STORAGE_POLICY}"
+        }
+    },
+    "zones": [ "${VKSZone1}","${VKSZone2}","${VKSZone3}" ]
+}

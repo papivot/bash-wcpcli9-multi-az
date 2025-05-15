@@ -1,1 +1,1 @@
-# bash-wcpcli9-multi-az
+# Bash Script to enable Supervisor on VCF 9.0 (Multi AZ)
