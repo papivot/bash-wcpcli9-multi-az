@@ -274,7 +274,7 @@ fi
 ###############################################
 envsubst < zone.json > temp_final.json
 echo "Enabling Supervisor ..."
-curl -ks -X POST -H "${HEADER_SESSIONID}" -H "${HEADER_CONTENTTYPE}" -d "@temp_final.json" https://${VCENTER_HOSTNAME}/api/vcenter/namespace-management/supervisors/supervisors?action=enable_on_zones
+curl -ks --write-out "%{http_code}" -X POST -H "${HEADER_SESSIONID}" -H "${HEADER_CONTENTTYPE}" -d "@temp_final.json" https://${VCENTER_HOSTNAME}/api/vcenter/namespace-management/supervisors?action=enable_on_zones
 
 #TODO while configuring, keep checking for status of Supervisor until ready
 #curl -X POST 'https://vcsa-01.lab9.com/api/vcenter/namespace-management/supervisors/domain-c10?action=enable_on_compute_cluster'

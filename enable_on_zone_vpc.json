@@ -62,7 +62,7 @@
                     "prefix": ${VPC_DEFAULT_PRIVATE_CIDRS_PREFIX}
                 } ],
                 "nsx_project": "/orgs/${VPC_ORG}/projects/${VPC_PROJECT}",
-                "vpc_connectivity_profile": "/orgs/${VPC_ORG}/projects/${VPC_PROJECT}/vpc-connectivity-profiles/${VPC_CONNECTIVITY_PROFILE"
+                "vpc_connectivity_profile": "/orgs/${VPC_ORG}/projects/${VPC_PROJECT}/vpc-connectivity-profiles/${VPC_CONNECTIVITY_PROFILE}"
             },
             "services": {
                 "dns": {
