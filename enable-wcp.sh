@@ -29,6 +29,7 @@ export K8S_SERVICE_SUBNET_COUNT=512 # Allowed values are 256, 512, 1024, 2048, 4
 export SUPERVISOR_NAME='supervisorCluster0'
 export SUPERVISOR_SIZE=TINY # Allowed values are TINY, SMALL, MEDIUM, LARGE 
 export SUPERVISOR_VM_COUNT=1 # Allowed values are 1, 3
+K8S_CONTENT_LIBRARY=tkgs
 K8S_MGMT_PORTGROUP1='seg-mgmt-tanzu-supervisor1'
 K8S_MGMT_PORTGROUP2='seg-mgmt-tanzu-supervisor2'
 K8S_MGMT_PORTGROUP3='seg-mgmt-tanzu-supervisor3'
@@ -49,24 +50,24 @@ K8S_STORAGE_POLICY='vSAN Default Storage Policy'
 #############################################################
 # NSX specific variables
 #############################################################
-export NSX_EDGE_CLUSTER='edge-cluster-01'
-export NSX_T0_GATEWAY='t0-01'
-export NSX_DVS_PORTGROUP='vds1'
-export NSX_INGRESS_NW='10.220.3.16'
-export NSX_INGRESS_COUNT=16
-export NSX_EGRESS_NW='10.220.30.80'
-export NSX_EGRESS_COUNT=16
-export NSX_NAMESPACE_NW='10.244.0.0'
-export NSX_NAMESPACE_COUNT=4096
+#export NSX_EDGE_CLUSTER='edge-cluster-01'
+#export NSX_T0_GATEWAY='t0-01'
+#export NSX_DVS_PORTGROUP='vds1'
+#export NSX_INGRESS_NW='10.220.3.16'
+#export NSX_INGRESS_COUNT=16
+#export NSX_EGRESS_NW='10.220.30.80'
+#export NSX_EGRESS_COUNT=16
+#export NSX_NAMESPACE_NW='10.244.0.0'
+#export NSX_NAMESPACE_COUNT=4096
 
 #############################################################
 # VPC specific variables
 #############################################################
-#export VPC_ORG='default'
-#export VPC_PROJECT='default'
-#export VPC_CONNECTIVITY_PROFILE='vpc_connectivity_profile-default'
-#export VPC_DEFAULT_PRIVATE_CIDRS_ADDRESS='10.1.240.128'
-#export VPC_DEFAULT_PRIVATE_CIDRS_PREFIX=25
+export VPC_ORG='default'
+export VPC_PROJECT='default'
+export VPC_CONNECTIVITY_PROFILE='default'
+export VPC_DEFAULT_PRIVATE_CIDRS_ADDRESS='10.1.240.128'
+export VPC_DEFAULT_PRIVATE_CIDRS_PREFIX=25
 
 ################################################
 # Check if jq is installed
@@ -137,7 +138,7 @@ fi
 ################################################
 # Get zone details from vCenter
 ###############################################
-echo "Searching for Zones ..."
+echo "Searching for Zones ${K8S_SUP_ZONE1}, ${K8S_SUP_ZONE2}, ${K8S_SUP_ZONE3}..."
 response=$(curl -ks --write-out "%{http_code}" -X GET  -H "${HEADER_SESSIONID}" https://${VCENTER_HOSTNAME}/api/vcenter/consumption-domains/zones --output /tmp/temp_zones.json)
 if [[ "${response}" -ne 200 ]] ; then
   echo "Error: Could not fetch zones. Please validate!!"
@@ -166,7 +167,7 @@ fi
 ################################################
 # Get network details from vCenter
 ###############################################
-echo "Searching for Network portgroups  ..."
+echo "Searching for Network portgroups ${K8S_MGMT_PORTGROUP1}, ${K8S_MGMT_PORTGROUP2}, ${K8S_MGMT_PORTGROUP3} ..."
 response=$(curl -ks --write-out "%{http_code}" -X GET  -H "${HEADER_SESSIONID}" https://${VCENTER_HOSTNAME}/api/vcenter/network --output /tmp/temp_networkportgroups.json)
 if [[ "${response}" -ne 200 ]] ; then
   echo "Error: Could not fetch network details. Please validate!!"
@@ -191,6 +192,24 @@ fi
 if [ -z "${VKS_MGMT_NETWORK3}" ]
 then
         echo "Error: Could not fetch portgroup - ${K8S_MGMT_PORTGROUP3} . Please validate!!"
+        exit 1
+fi
+
+################################################
+# Get contentlibrary details from vCenter
+###############################################
+
+echo "Searching for Content Library ${K8S_CONTENT_LIBRARY} ..."
+response=$(curl -ks --write-out "%{http_code}" -X POST -H "${HEADER_SESSIONID}" -H "${HEADER_CONTENTTYPE}" -d "$(content_library_json)" https://${VCENTER_HOSTNAME}/api/content/library?action=find --output /tmp/temp_contentlib.json)
+if [[ "${response}" -ne 200 ]] ; then
+        echo "Error: Could not fetch content librarys. Please validate!!"
+        exit 1
+fi
+
+export VKSContentLibrary=$(jq -r '.[]' /tmp/temp_contentlib.json)
+if [ -z "${VKSContentLibrary}" ]
+then
+        echo "Error: Could not fetch content library - ${K8S_CONTENT_LIBRARY} . Please validate!!"
         exit 1
 fi
 
@@ -223,7 +242,7 @@ then
         ################################################
         # Get NSX VDS from vCenter
         ###############################################
-        echo "Searching for NSX compatible VDS switch ..."
+        echo "Searching for NSX compatible VDS switch ${$NSX_DVS_PORTGROUP}..."
         response=$(curl -ks --write-out "%{http_code}" -X POST  -H "${HEADER_SESSIONID}" https://${VCENTER_HOSTNAME}/api/vcenter/namespace-management/networks/nsx/distributed-switches?action=check_compatibility --output /tmp/temp_vds.json)
         if [[ "${response}" -ne 200 ]] ; then
                 echo "Error: Could not fetch VDS details. Please validate!!"
@@ -239,7 +258,7 @@ then
         ################################################
         # Get a Edge cluster ID from NSX Manager
         ###############################################
-        echo "Searching for Edge cluster in NSX Manager ..."
+        echo "Searching for Edge cluster in NSX Manager ${$NSX_EDGE_CLUSTER} ..."
 	    response=$(curl -ks --write-out "%{http_code}" -X GET -u "${NSX_USERNAME}:${NSX_PASSWORD}" -H 'Content-Type: application/json' https://${NSX_MANAGER}/api/v1/edge-clusters --output /tmp/temp_edgeclusters.json)
         if [[ "${response}" -ne 200 ]] ; then
                 echo "Error: Could not fetch Edge Cluster details. Please validate!!"
@@ -255,7 +274,7 @@ then
         ################################################
         # Get a Tier0 ID from NSX Manager
         ###############################################
-        echo "Searching for Tier0 in NSX Manager ..."
+        echo "Searching for Tier0 in NSX Manager ${$NSX_T0_GATEWAY}..."
 	    response=$(curl -ks --write-out "%{http_code}" -X GET -u "${NSX_USERNAME}:${NSX_PASSWORD}" -H 'Content-Type: application/json' https://${NSX_MANAGER}/policy/api/v1/infra/tier-0s --output /tmp/temp_t0s.json)
         if [[ "${response}" -ne 200 ]] ; then
                 echo "Error: Could not fetch Tier0 details. Please validate!!"

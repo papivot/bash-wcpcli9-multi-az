@@ -39,6 +39,9 @@
     },
     "name": "${SUPERVISOR_NAME}",
     "workloads": {
+        "images": {
+           "kubernetes_content_library": "${VKSContentLibrary}"
+        },
         "edge": {
             "provider": "NSX_VPC"
         },
