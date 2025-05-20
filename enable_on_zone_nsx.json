@@ -91,7 +91,7 @@
                 "ntp": {
                     "servers": [ "${NTP_SERVER}" ]
                 }
-            },
+            }
         },
         "storage": {
             "ephemeral_storage_policy": "${VKS_STORAGE_POLICY}",
