@@ -104,6 +104,15 @@ else
         exit 1
 fi  
 
+content_library_json()
+{
+        cat <<EOF
+{
+        "name": "${K8S_CONTENT_LIBRARY}"
+}
+EOF
+}
+
 ################################################
 # Login to VCenter and get Session ID
 ###############################################
