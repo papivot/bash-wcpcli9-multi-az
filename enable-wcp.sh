@@ -4,35 +4,35 @@
 # Enter Infrastructure variables here
 ###################################################
 VCENTER_VERSION=9
-VCENTER_HOSTNAME=172.16.41.10
-VCENTER_USERNAME=administrator@vsphere.local
-VCENTER_PASSWORD='sGN#FBiN@UKY1!67'
-NSX_MANAGER=172.16.41.14
+VCENTER_HOSTNAME=10.11.10.130
+VCENTER_USERNAME=administrator@sfo-w01.local
+VCENTER_PASSWORD='VMw@re1!VMw@re1!'
+NSX_MANAGER=10.11.10.131
 NSX_USERNAME='admin'
-NSX_PASSWORD='sGN#FBiN@UKY1!67'
-K8S_SUP_ZONE1='zone1'
-K8S_SUP_ZONE2='zone2'
-K8S_SUP_ZONE3='zone3'
+NSX_PASSWORD='VMw@re1!VMw@re1!'
+K8S_SUP_ZONE1='zone-cl01'
+K8S_SUP_ZONE2='zone-cl04'
+K8S_SUP_ZONE3='zone-cl05'
 
-DEPLOYMENT_TYPE='NSX' # Allowed values are VPC, NSX, AVI, FLB  
+DEPLOYMENT_TYPE='VPC' # Allowed values are VPC, NSX, AVI, FLB
 
 #####################################################
 # Common variables
 #####################################################
-export DNS_SERVER='10.6.248.74'
-export NTP_SERVER='10.6.248.74'
-export DNS_SEARCHDOMAIN='lab9.com'
-export MGMT_STARTING_IP='192.168.2.130'
-export MGMT_GATEWAY_CIDR='192.168.2.1/24'
-export K8S_SERVICE_SUBNET='10.96.0.0' 
+export DNS_SERVER='10.11.10.4'
+export NTP_SERVER='ntp0.sfo.rainpole.io'
+export DNS_SEARCHDOMAIN='sfo.rainpole.io'
+export MGMT_STARTING_IP='10.13.10.151'
+export MGMT_GATEWAY_CIDR='10.13.10.1/24'
+export K8S_SERVICE_SUBNET='10.96.0.0'
 export K8S_SERVICE_SUBNET_COUNT=512 # Allowed values are 256, 512, 1024, 2048, 4096...
-export SUPERVISOR_NAME='supervisorCluster0'
-export SUPERVISOR_SIZE=TINY # Allowed values are TINY, SMALL, MEDIUM, LARGE 
-export SUPERVISOR_VM_COUNT=1 # Allowed values are 1, 3
-K8S_CONTENT_LIBRARY=tkgs
-K8S_MGMT_PORTGROUP1='seg-mgmt-tanzu-supervisor1'
-K8S_MGMT_PORTGROUP2='seg-mgmt-tanzu-supervisor2'
-K8S_MGMT_PORTGROUP3='seg-mgmt-tanzu-supervisor3'
+export SUPERVISOR_NAME='supervisor01'
+export SUPERVISOR_SIZE=TINY # Allowed values are TINY, SMALL, MEDIUM, LARGE
+export SUPERVISOR_VM_COUNT=3 # Allowed values are 1, 3
+K8S_CONTENT_LIBRARY='vks'
+K8S_MGMT_PORTGROUP1='sfo-w01-cl01-vds01-pg-vm-mgmt'
+K8S_MGMT_PORTGROUP2='sfo-w01-cl04-vds01-pg-vm-mgmt'
+K8S_MGMT_PORTGROUP3='sfo-w01-cl05-vds01-pg-vm-mgmt'
 K8S_WKD0_PORTGROUP='Workload0-VDS-PG' # Not needed for NSX
 K8S_STORAGE_POLICY='vSAN Default Storage Policy'
 
@@ -66,8 +66,8 @@ K8S_STORAGE_POLICY='vSAN Default Storage Policy'
 export VPC_ORG='default'
 export VPC_PROJECT='default'
 export VPC_CONNECTIVITY_PROFILE='default'
-export VPC_DEFAULT_PRIVATE_CIDRS_ADDRESS='10.1.240.128'
-export VPC_DEFAULT_PRIVATE_CIDRS_PREFIX=25
+export VPC_DEFAULT_PRIVATE_CIDRS_ADDRESS='172.16.0.0'
+export VPC_DEFAULT_PRIVATE_CIDRS_PREFIX=24
 
 ################################################
 # Check if jq is installed
