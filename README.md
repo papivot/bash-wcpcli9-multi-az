@@ -2,18 +2,18 @@
 
 ## Overview
 
-This script automates the process of enabling VMware vSphere with Tanzu Supervisor on a vCenter Server instance, specifically tailored for VMware Cloud Foundation (VCF) 9.0 multi-Availability Zone (AZ) deployments. It streamlines the setup by making necessary API calls to vCenter and, if applicable, NSX Manager.
+This script automates the process of enabling  Supervisor on a vCenter Server instance, specifically tailored for VMware Cloud Foundation (VCF) 9.0 multi-Availability Zone (AZ) deployments. It streamlines the setup by making necessary API calls to vCenter and, if applicable, NSX Manager.
 
 The script supports several deployment types by using different JSON configuration templates:
 
 *   **VPC:** For VMware Cloud on AWS (VMC) or similar NSX-T VPC environments.
 *   **NSX:** For on-premises deployments utilizing NSX-T as the primary networking and load balancing solution.
 *   **AVI:** For deployments using NSX Advanced Load Balancer (AVI) as the load balancing solution.
-*   **FLB:** Intended for "Firewall Load Balancer" type deployments. (**Note:** The template for this type is currently a placeholder and non-functional.)
+*   **FLB:** Intended for "Foundation Load Balancer" type deployments. (**Note:** The template for this type is currently a placeholder and non-functional.)
 
 ## Important Notes
 
-*   **Caution:** This script makes significant configuration changes to your vSphere environment. It is strongly recommended to understand the script's operations, back up any existing configurations, and test thoroughly in a non-production environment before use in a live environment.
+*   **Caution:** This script makes significant configuration changes to your vSphere environment. It is strongly recommended that you understand the script's operations, back up any existing configurations, and test thoroughly in a non-production environment before using it in a live environment.
 *   **Review Variables:** Carefully review and update all variables in the `enable-wcp.sh` script to match your specific environment details before execution. Incorrect configurations can lead to errors or an improperly configured Supervisor.
 
 ## Prerequisites
@@ -25,7 +25,7 @@ Before running this script, ensure the following prerequisites are met:
 *   **Bash Shell:** A bash-compatible environment (Linux, macOS, WSL on Windows).
 *   **`jq`:** Command-line JSON processor. The script will check for its presence.
 *   **`curl`:** Command-line tool for transferring data with URLs. The script will check for its presence.
-*   **`envsubst`:** Utility from the GNU gettext package, used for substituting environment variables in the JSON templates.
+*   **`envsubst`:** This is a Utility from the GNU gettext package that is used to substitute environment variables in the JSON templates.
 *   **`openssl`:** Required only if `DEPLOYMENT_TYPE` is set to `AVI`, for fetching the AVI Controller's CA certificate.
 
 **Network Connectivity:**
@@ -91,7 +91,7 @@ Open `enable-wcp.sh` in a text editor and modify the following sections:
     *   `AVI`
     *   `FLB` (Currently non-functional due to empty template)
 
-**2. Common Variables (Review and Update all):**
+**2. Standard Variables (Review and Update all):**
 
 *   `DNS_SERVER`: IP address of DNS server.
 *   `NTP_SERVER`: FQDN or IP of NTP server.
@@ -117,19 +117,19 @@ Open `enable-wcp.sh` in a text editor and modify the following sections:
 *   `AVI_WORKLOAD_NW_GATEWAY_CIDR`: Gateway and CIDR for AVI workload network.
 *   `AVI_WORKLOAD_STARTING_IP`: Starting IP for AVI workload network.
 *   `AVI_WORKLOAD_IP_COUNT`: Number of IPs for AVI workload network.
-    *   **Important for AVI:** Review `enable_on_zone_avi.json`. Fields like `cloud_name`, `username`, `password`, and `server` within this JSON are **not directly parameterized by environment variables in the current script version**, apart from the CA certificate (`AVI_CACERT` which the script fetches). You may need to manually edit these fields in `enable_on_zone_avi.json` or modify the script if you need to parameterize them further.
+    *   **Important for AVI:** Review `enable_on_zone_avi.json`. Fields like `cloud_name`, `username`, `password`, and `server` within this JSON are **not directly parameterized by environment variables in the current script version**, apart from the CA certificate (`AVI_CACERT`, which the script fetches). You may need to manually edit these fields in `enable_on_zone_avi.json` or modify the script if you need to parameterize them further.
 
 **4. NSX Specific Variables (used if `DEPLOYMENT_TYPE='NSX'`):**
 
 *   `NSX_EDGE_CLUSTER`: Display name of the NSX Edge Cluster.
 *   `NSX_T0_GATEWAY`: Display name of the NSX Tier-0 Gateway.
 *   `NSX_DVS_PORTGROUP`: Name of the NSX-compatible VDS/DVS.
-*   `NSX_INGRESS_NW`: Starting IP for NSX Ingress network range.
+*   `NSX_INGRESS_NW`: Starting IP for Ingress network range.
 *   `NSX_INGRESS_COUNT`: Number of IPs for Ingress range.
-*   `NSX_EGRESS_NW`: Starting IP for NSX Egress network range.
+*   `NSX_EGRESS_NW`: Starting IP for Egress network range.
 *   `NSX_EGRESS_COUNT`: Number of IPs for Egress range.
-*   `NSX_NAMESPACE_NW`: Starting IP for NSX Namespace (Pod CIDRs) network range.
-*   `NSX_NAMESPACE_COUNT`: Number of IPs for Namespace range.
+*   `NSX_NAMESPACE_NW`: Starting IP for vSphere Namespace (Pod CIDRs) network range.
+*   `NSX_NAMESPACE_COUNT`: Number of IPs for the vSphere Namespace range.
 
 **5. VPC Specific Variables (used if `DEPLOYMENT_TYPE='VPC'`):**
 
@@ -153,7 +153,7 @@ Open `enable-wcp.sh` in a text editor and modify the following sections:
     ```
 5.  **Monitor Output:** Observe the script's console output. It will show authentication status, details of fetched resources, and the final API call. Note any error messages.
 6.  **Post-Execution:**
-    *   The script **initiates** the Supervisor enablement process. This process can take a significant amount of time.
+    *   The script **initiates** the Supervisor enablement process.
     *   **Crucially, monitor the actual progress and completion status in the vCenter UI (Tasks and Events consoles).**
     *   The script automatically cleans up temporary files (`/tmp/temp_*.*`, `temp_final.json`, `zone.json`) upon completion or error.
 
@@ -162,7 +162,7 @@ Open `enable-wcp.sh` in a text editor and modify the following sections:
 These files serve as templates for the JSON payload required by the vCenter API to enable the Supervisor. The `enable-wcp.sh` script selects one based on `DEPLOYMENT_TYPE`, substitutes the configured environment variables into it using `envsubst`, and then uses this final JSON for the API call.
 
 *   **`enable_on_zone_avi.json`**: Used when `DEPLOYMENT_TYPE="AVI"`. Configures Supervisor with NSX Advanced Load Balancer.
-    *   *Note:* As mentioned in the configuration section, some fields in this template might require manual editing for your specific AVI setup as they are not fully parameterized by the script.
+    *   *Note:* As mentioned in the configuration section, some fields in this template might require manual editing for your specific AVI setup, as the script does not fully parameterize them.
 *   **`enable_on_zone_flb.json`**: Used when `DEPLOYMENT_TYPE="FLB"`.
     *   **Warning: This template is currently empty and non-functional. Using `DEPLOYMENT_TYPE="FLB"` will result in a failed deployment.**
 *   **`enable_on_zone_nsx.json`**: Used when `DEPLOYMENT_TYPE="NSX"`. Configures Supervisor with NSX-T networking.
@@ -180,7 +180,7 @@ Users generally should not need to modify these JSON files directly unless comfo
     *   **`envsubst: command not found`:** Install `gettext` package (which includes `envsubst`).
     *   **`Permission Denied` running script:** Use `chmod +x enable-wcp.sh`.
 *   **Authentication/Connection Issues:**
-    *   **`Could not connect to the VCenter`**: Verify `VCENTER_HOSTNAME`, credentials, and network connectivity to vCenter. Check vCenter service status.
+    *   **`Could not connect to the VCenter`**: Verify `VCENTER_HOSTNAME`, credentials, and network connectivity to vCenter. Check the vCenter service status.
     *   **`Could not connect to the NSX ALB endpoint` (AVI):** Verify `AVI_CONTROLLER` address, network connectivity, and AVI Controller status.
     *   **`Could not fetch Edge Cluster details` (NSX):** Verify `NSX_MANAGER` address, NSX credentials, network connectivity, and NSX Manager service status. Ensure NSX entity names are correct.
 *   **API Call Failures / Resource Not Found:**
